@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergency System Login</title>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+
+    .login-box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 12px 0;
+      border-radius: 12px;
+      border: 2px solid #e1e5e9;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background: rgba(255,255,255,0.8);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.5s ease;
+      position: relative;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    button:hover {
+      height: 55px;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(255, 107, 107, 0.4);
+    }
+
+    button:active {
+      transform: translateY(-3px);
+    }
+
+    .back-btn {
+      background: linear-gradient(45deg, #667eea, #764ba2) !important;
+    }
+
+    .back-btn:hover {
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4) !important;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .container {
+      padding: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+      color: white;
+      padding: 30px;
+      text-align: center;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.3s ease;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .card h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .emergency-btn {
+      background: linear-gradient(45deg, #ff4757, #ff3838) !important;
+      font-size: 20px !important;
+      font-weight: 700 !important;
+      padding: 20px !important;
+      border-radius: 15px !important;
+      box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4) !important;
+      animation: pulse 2s infinite;
+    }
+
+    .emergency-btn:hover {
+      box-shadow: 0 15px 35px rgba(255, 71, 87, 0.6) !important;
+      transform: translateY(-5px) scale(1.05) !important;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4); }
+      50% { box-shadow: 0 12px 35px rgba(255, 71, 87, 0.6); }
+      100% { box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4); }
+    }
+
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .qr-info {
+      text-align: center;
+      color: #555;
+      font-size: 16px;
+      max-width: 300px;
+    }
+
+    ul {
+      text-align: left;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 8px 0;
+      font-size: 16px;
+    }
+
+    .notification-success {
+      background: #00b894;
+      color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 10px 0;
+      animation: slideIn 0.5s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .container {
+        padding: 20px;
+      }
+      
+      .login-box {
+        margin: 20px;
+        padding: 30px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- INITIAL SCREEN -->
+<div id="initialPage" class="login-box">
+  <h2>🚨 Emergency Portal</h2>
+  <button onclick="showSignup()">📱 Sign Up</button>
+</div>
+
+<!-- SIGNUP SCREEN -->
+<div id="signupPage" class="login-box hidden">
+  <h2>📝 Emergency Sign Up</h2>
+  <input type="text" id="name" placeholder="👤 Full Name" required>
+  <input type="email" id="email" placeholder="📧 Email Address" required>
+  <input type="tel" id="contact" placeholder="📞 Phone Number" required>
+  <input type="text" id="address" placeholder="📍 Full Address" required>
+  <button onclick="signup()">✅ Complete Registration</button>
+  <button class="back-btn" onclick="backToInitial()">🔙 Back</button>
+</div>
+
+<!-- QR CODE SCREEN -->
+<div id="qrPage" class="login-box hidden">
+  <h2>🛡️ Your QR Code</h2>
+  <div id="qrcodeDisplay" class="qr-container"></div>
+  <button class="back-btn" onclick="backToInitial()">🏠 Back to Home</button>
+</div>
+
+<!-- MAIN WEBSITE -->
+<div id="mainPage" class="hidden">
+  <header class="header">
+    <h1>🚨 Emergency Information Portal</h1>
+    <p id="WelcomeMsg" style="font-size: 18px; margin-top: 10px;"></p>
+  </header>
+
+  <div class="container">
+    <div class="grid">
+      <div class="card">
+        <h2>👤 Contact Information</h2>
+        <p id="InfoContact" style="font-size: 16px; color: #555; line-height: 1.6;"></p>
+      </div>
+      
+      <div class="card">
+        <h2>📍 Emergency Location</h2>
+        <p id="EmergencyDetails" style="font-size: 16px; color: #555; line-height: 1.6;"></p>
+      </div>
+      
+      <div class="card">
+        <h2>📞 Emergency Contacts</h2>
+        <ul style="text-align: left;">
+          <li><strong>🚓 Police:</strong> 911</li>
+          <li><strong>🚒 Fire Dept:</strong> 160</li>
+          <li><strong>🚑 Ambulance:</strong> 911</li>
+          <li><strong>🏥 Hospital:</strong> 108</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>🛡️ Safety Tips</h2>
+        <ul style="text-align: left;">
+          <li>✅ Stay calm and assess the situation</li>
+          <li>✅ Call emergency services immediately</li>
+          <li>✅ Follow official instructions</li>
+          <li>✅ Move to a safe location</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2>ℹ️ Quick Info</h2>
+        <button onclick="showInfo()" style="background: linear-gradient(45deg, #00b894, #00a085);">Show Emergency Info</button>
+        <p id="infoText" style="margin-top: 15px; color: #555;"></p>
+      </div>
+
+      <div class="card">
+        <h2>🚨 Alert Button!</h2>
+        <p style="color: #666; margin-bottom: 20px;">Send emergency notification to contacts</p>
+        <button class="emergency-btn" onclick="sendEmergencyAlert()">🚨 SEND ALERT NOW!</button>
+        <div id="alertStatus"></div>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const API_BASE = 'http://localhost:5000/api'; // Backend URL
+
+function showSignup() {
+  document.getElementById("initialPage").classList.add("hidden");
+  document.getElementById("signupPage").classList.remove("hidden");
+}
+
+function backToInitial() {
+  document.getElementById("initialPage").classList.remove("hidden");
+  document.getElementById("signupPage").classList.add("hidden");
+  document.getElementById("qrPage").classList.add("hidden");
+  document.getElementById("mainPage").classList.add("hidden");
+  document.getElementById("alertStatus").innerHTML = "";
+}
+
+function parseQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const name = params.get("name");
+  const email = params.get("email");
+  const contact = params.get("contact");
+  const address = params.get("address");
+  
+  if (name && email && contact && address) {
+    window.__userInfo = {
+      name,
+      email,
+      contact,
+      address,
+      generatedAt: params.get("generatedAt") || new Date().toISOString(),
+      app: "Emergency Information Portal"
+    };
+
+    setupMainPage();
+  }
+}
+
+function setupMainPage() {
+  const info = window.__userInfo;
+  
+  document.getElementById("initialPage").classList.add("hidden");
+  document.getElementById("signupPage").classList.add("hidden");
+  document.getElementById("qrPage").classList.add("hidden");
+  document.getElementById("mainPage").classList.remove("hidden");
+  
+  document.getElementById("WelcomeMsg").innerText = `Welcome, ${info.name}! Stay Safe.`;
+  document.getElementById("InfoContact").innerHTML = 
+    `👤 <strong>${info.name}</strong><br>📞 ${info.contact}<br>📧 ${info.email}`;
+  document.getElementById("EmergencyDetails").innerHTML = 
+    `📍 <strong>${info.address}</strong>`;
+}
+
+async function signup() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const contact = document.getElementById("contact").value.trim();
+  const address = document.getElementById("address").value.trim();
+
+  if (!name || !email || !contact || !address) {
+    alert("⚠️ Fill all fields!");
+    return;
+  }
+
+  try {
+    console.log('📤 Registering:', { name, email });
+
+    const response = await fetch('/api/alerts/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, contact, address })
+    });
+
+    // Check response ok
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Result:', result);
+
+    // Set user info
+    window.__userInfo = { name, email, contact, address, generatedAt: new Date().toISOString() };
+
+    // Show QR
+    document.getElementById("signupPage").style.display = "none";
+    document.getElementById("qrPage").style.display = "block";
+    generateQRCode();
+
+  } catch (error) {
+    console.error('Error:', error);
+    alert(`❌ ${error.message}`);
+  }
+}
+
+  document.getElementById("initialPage").classList.add("hidden");
+  document.getElementById("signupPage").classList.add("hidden");
+  document.getElementById("qrPage").classList.remove("hidden");
+
+  generateQRCode();
+
+function generateQRCode() {
+  // Safety check
+  if (!window.__userInfo || !window.__userInfo.name) {
+    alert('❌ User info missing! Please signup again.');
+    backToInitial();
+    return;
+  }
+
+  const target = document.getElementById("qrcodeDisplay");
+  target.innerHTML = "";
+
+  const info = window.__userInfo;
+  const portalUrl = new URL(window.location.href);
+  portalUrl.searchParams.set("name", info.name);
+  portalUrl.searchParams.set("email", info.email);
+  portalUrl.searchParams.set("contact", info.contact);
+  portalUrl.searchParams.set("address", info.address);
+  portalUrl.searchParams.set("generatedAt", info.generatedAt);
+
+  const qrText = portalUrl.href;
+
+  new QRCode(target, {
+    text: qrText,
+    width: 280,
+    height: 280,
+    colorDark: "#000000",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+
+  // Instructions
+  const infoText = document.createElement("p");
+  infoText.innerHTML = `<strong>Scan to access ${info.name}'s Emergency Portal</strong>`;
+  infoText.style.textAlign = "center";
+  infoText.style.marginTop = "15px";
+  target.appendChild(infoText);
+}
+
+function downloadQR() {
+  if (!window.__qrCode) {
+    alert("⚠️ Generate QR code first.");
+    return;
+  }
+
+  const canvas = document.querySelector("#qrcodeDisplay canvas");
+  if (!canvas) {
+    alert("⚠️ QR canvas not found.");
+    return;
+  }
+
+  const link = document.createElement("a");
+  link.download = `emergency-qr-${window.__userInfo?.name || 'user'}.png`;
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
+
+function showInfo() {
+  document.getElementById("infoText").innerHTML =
+    "🚨 <strong>In Emergency:</strong><br>1. Stay calm<br>2. Call 911 immediately<br>3. Share your location<br>4. Follow instructions";
+}
+
+async function sendEmergencyAlert() {
+  const btn = document.getElementById("alertBtn");
+  const originalText = btn.innerHTML;
+  
+  if (!window.__userInfo) {
+    alert("⚠️ Please complete your profile first.");
+    return;
+  }
+
+  // Visual feedback
+  btn.innerHTML = "📡 SENDING ALERT...";
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+
+  try {
+    const response = await fetch(`${API_BASE}/alerts/send-alert`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(window.__userInfo)
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      showNotification("✅ EMERGENCY SENT!", 
+        `Alert delivered to:\n📧 ${window.__userInfo.email}\n📱 ${window.__userInfo.contact}\n💾 Saved to database`, 
+        "success");
+      
+      // Update button
+      btn.innerHTML = "✅ ALERT SENT";
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 3000);
+    } else {
+      throw new Error(result.error || 'Unknown error');
+    }
+
+  } catch (error) {
+    console.error('Alert error:', error);
+    showNotification("❌ FAILED", 
+      `Error: ${error.message}\nCheck console for details`, 
+      "error");
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  }
+}
+
+function playAlertSound() {
+  // Create and play alert sound
+  const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioContext.createOscillator();
+  const gainNode = audioContext.createGain();
+  
+  oscillator.connect(gainNode);
+  gainNode.connect(audioContext.destination);
+  
+  oscillator.frequency.value = 800;
+  oscillator.type = 'sine';
+  
+  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+  
+  oscillator.start(audioContext.currentTime);
+  oscillator.stop(audioContext.currentTime + 1);
+}
+
+function sendToBackend() {
+  if (!window.__userInfo) return;
+  
+  fetch(`${API_BASE}/emergency-alert`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(window.__userInfo)
+  })
+  .then(response => response.json())
+  .then(data => console.log('Alert sent:', data))
+  .catch(error => console.error('Error:', error));
+}
+
+// Initialize
+parseQuery();
+</script>
+</body>
+</html>
