@@ -303,8 +303,8 @@
     </div>
   </div>
 </div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="/qrcode.min.js"></script>
 <script>
 const API_BASE = 'http://localhost:5000/api'; // Backend URL
 
@@ -342,7 +342,7 @@ function parseQuery() {
   }
 }
 
-function setupMainPage() {
+async function setupMainPage() {
   const info = window.__userInfo;
   
   document.getElementById("initialPage").classList.add("hidden");
@@ -363,38 +363,59 @@ async function signup() {
   const contact = document.getElementById("contact").value.trim();
   const address = document.getElementById("address").value.trim();
 
+  console.log('Raw input:', {name, email, contact, address});
+
   if (!name || !email || !contact || !address) {
-    alert("⚠️ Fill all fields!");
+    alert("⚠️ Fill ALL fields!");
     return;
   }
 
-  try {
-    console.log('📤 Registering:', { name, email });
+  // Clear form
+  document.querySelectorAll('#signupPage input').forEach(input => input.value = '');
 
+  try {
+    console.log('📤 Sending to /api/alerts/register');
+    
     const response = await fetch('/api/alerts/register', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
       body: JSON.stringify({ name, email, contact, address })
     });
 
-    // Check response ok
+    console.log('Response status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('Backend error:', errorText);
+      throw new Error(`Backend ${response.status}: ${errorText}`);
     }
 
-    const result = await response.json();
-    console.log('✅ Result:', result);
+    const backendResult = await response.json();
+    console.log('✅ Backend result:', backendResult);
 
-    // Set user info
-    window.__userInfo = { name, email, contact, address, generatedAt: new Date().toISOString() };
+    // FORCE set user info
+    window.__userInfo = {
+      name: name,
+      email: email,
+      contact: contact,
+      address: address,
+      generatedAt: new Date().toISOString()
+    };
 
-    // Show QR
+    console.log('✅ window.__userInfo SET:', window.__userInfo);
+
+    // Hide signup, show QR
     document.getElementById("signupPage").style.display = "none";
     document.getElementById("qrPage").style.display = "block";
-    generateQRCode();
+    
+    // Generate QR
+    setTimeout(generateQRCode, 100);
 
   } catch (error) {
-    console.error('Error:', error);
+    console.error('Full signup error:', error);
     alert(`❌ ${error.message}`);
   }
 }
@@ -406,61 +427,60 @@ async function signup() {
   generateQRCode();
 
 function generateQRCode() {
-  // Safety check
-  if (!window.__userInfo || !window.__userInfo.name) {
-    alert('❌ User info missing! Please signup again.');
-    backToInitial();
+  console.log('generateQRCode called, userInfo:', window.__userInfo);
+  
+  if (!window.__userInfo?.name) {
+    console.error('❌ No userInfo, redirecting...');
+    document.getElementById("qrPage").style.display = "none";
+    document.getElementById("signupPage").style.display = "block";
+    alert('Please signup again!');
     return;
   }
 
   const target = document.getElementById("qrcodeDisplay");
-  target.innerHTML = "";
+  target.innerHTML = '<div style="text-align:center;padding:20px">Generating QR...</div>';
 
   const info = window.__userInfo;
-  const portalUrl = new URL(window.location.href);
-  portalUrl.searchParams.set("name", info.name);
-  portalUrl.searchParams.set("email", info.email);
-  portalUrl.searchParams.set("contact", info.contact);
-  portalUrl.searchParams.set("address", info.address);
-  portalUrl.searchParams.set("generatedAt", info.generatedAt);
+  const params = new URLSearchParams({
+    name: info.name,
+    email: info.email,
+    contact: info.contact,
+    address: info.address,
+    generatedAt: info.generatedAt
+  });
 
-  const qrText = portalUrl.href;
+  const qrUrl = `${window.location.origin}${window.location.pathname}?${params}`;
+  
+  console.log('QR URL:', qrUrl);
 
   new QRCode(target, {
-    text: qrText,
+    text: qrUrl,
     width: 280,
     height: 280,
     colorDark: "#000000",
-    colorLight: "#ffffff",
-    correctLevel: QRCode.CorrectLevel.H
+    colorLight: "#ffffff"
   });
 
-  // Instructions
-  const infoText = document.createElement("p");
-  infoText.innerHTML = `<strong>Scan to access ${info.name}'s Emergency Portal</strong>`;
-  infoText.style.textAlign = "center";
-  infoText.style.marginTop = "15px";
-  target.appendChild(infoText);
+  // Success message
+  setTimeout(() => {
+    target.innerHTML += `
+      <div style="text-align:center;margin-top:15px">
+        <p><strong>✅ ${info.name}'s Emergency QR Ready!</strong></p>
+        <button onclick="downloadQR()" style="background:#4CAF50;color:white;padding:10px;border:none;border-radius:5px">💾 Download</button>
+      </div>
+    `;
+  }, 800);
 }
-
+// Download QR
 function downloadQR() {
-  if (!window.__qrCode) {
-    alert("⚠️ Generate QR code first.");
-    return;
+  const canvas = document.querySelector('#qrcodeDisplay canvas');
+  if (canvas) {
+    const link = document.createElement('a');
+    link.download = 'emergency-qr.png';
+    link.href = canvas.toDataURL();
+    link.click();
   }
-
-  const canvas = document.querySelector("#qrcodeDisplay canvas");
-  if (!canvas) {
-    alert("⚠️ QR canvas not found.");
-    return;
-  }
-
-  const link = document.createElement("a");
-  link.download = `emergency-qr-${window.__userInfo?.name || 'user'}.png`;
-  link.href = canvas.toDataURL("image/png");
-  link.click();
 }
-
 function showInfo() {
   document.getElementById("infoText").innerHTML =
     "🚨 <strong>In Emergency:</strong><br>1. Stay calm<br>2. Call 911 immediately<br>3. Share your location<br>4. Follow instructions";

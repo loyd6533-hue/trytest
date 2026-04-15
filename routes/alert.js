@@ -4,24 +4,19 @@ const router = express.Router();
 // In-memory storage (no database needed for testing)
 let users = [];
 let alerts = [];
-
-// 1. REGISTER USER - POST /api/alerts/register
+// 1. USER REGISTRATION - POST /api/alerts/register
 router.post('/register', (req, res) => {
-  console.log('✅ REGISTER:', req.body);
+  console.log('✅ REGISTER HIT:', req.body);
   
   const { name, email, contact, address } = req.body;
-  const userId = Date.now();
   
-  users.push({ id: userId, name, email, contact, address });
-  
-  res.json({
+  res.json({  // ← FORCE JSON RESPONSE
     success: true,
-    message: 'User registered successfully!',
-    userId: userId,
-    totalUsers: users.length
+    message: 'Registered!',
+    userId: Date.now(),
+    received: { name, email, contact, address }
   });
 });
-
 // 2. SEND EMERGENCY ALERT - POST /api/alerts/send-alert
 router.post('/send-alert', (req, res) => {
   console.log('🚨 ALERT FROM:', req.body.email);
